@@ -8,14 +8,21 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use: "pax",
+	Use:   "pax",
+	Short: "PAX - The Oreon package manager",
+	Long: `PAX is the official package manager for the Oreon 11.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello, World!")
+		fmt.Println("PAX - The Oreon package manager")
+		fmt.Println("Use 'pax --help' to see available commands.")
 	},
 }
 
+func Execute() error {
+	return rootCmd.Execute()
+}
+
 func main() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
