@@ -24,8 +24,18 @@ var installCmd = &cobra.Command{
 	},
 }
 
+var uninstallCmd = &cobra.Command{
+	Use:   "uninstall",
+	Short: "Uninstall the application by name",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		uninstallBinary(args[0])
+	},
+}
+
 func main() {
 	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(uninstallCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
