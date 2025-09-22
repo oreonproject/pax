@@ -34,7 +34,16 @@ func installBinary(path string) {
 	// get another package struct for each dependency yaml file
 	downloadTemporaryDependencies(pkg.Dependencies)
 
-	// TODO: install runtime dependencies
+	var wg sync.WaitGroup
+	for i, dep := range pkg.Dependencies {
+		wg.Add(1)
+		go func(dep string, i int) {
+			defer wg.Done()
+			installBinary(dep)
+			fmt.Println("done", i)
+		}(dep, i)
+	}
+	wg.Wait()
 
 	// build the package
 	exec.Command(pkg.Build).Run()
@@ -50,17 +59,6 @@ func downloadTemporaryDependencies(paths []string) {
 		pkg := getPackageFromYaml(p)
 		exec.Command("git", "clone", pkg.Origin).Run()
 		os.Mkdir("tmp/pax/"+pkg.Name, 0755)
-
-		var wg sync.WaitGroup
-		for i, dep := range pkg.Dependencies {
-			wg.Add(1)
-			go func(dep string, i int) {
-				defer wg.Done()
-				installBinary(dep)
-				fmt.Println("done", i)
-			}(dep, i)
-		}
-		wg.Wait()
 
 		// build the package
 		exec.Command(pkg.Build).Run()
