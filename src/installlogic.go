@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 )
@@ -50,7 +51,16 @@ func downloadTemporaryDependencies(paths []string) {
 		exec.Command("git", "clone", pkg.Origin).Run()
 		os.Mkdir("tmp/pax/"+pkg.Name, 0755)
 
-		// TODO: implement logic for the dependencies dependencies
+		var wg sync.WaitGroup
+		for i, dep := range pkg.Dependencies {
+			wg.Add(1)
+			go func(dep string, i int) {
+				defer wg.Done()
+				installBinary(dep)
+				fmt.Println("done", i)
+			}(dep, i)
+		}
+		wg.Wait()
 
 		// build the package
 		exec.Command(pkg.Build).Run()
